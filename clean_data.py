@@ -3,14 +3,12 @@
 import nltk
 import pandas as pd
 
-
 def load_data(input_file):
     """Lea el archivo usando pandas y devuelva un DataFrame"""
-
-
+    df = pd.read_csv(input_file)
+    return df
 def create_fingerprint(df):
     """Cree una nueva columna en el DataFrame que contenga el fingerprint de la columna 'text'"""
-
     # 1. Copie la columna 'text' a la columna 'fingerprint'
     # 2. Remueva los espacios en blanco al principio y al final de la cadena
     # 3. Convierta el texto a minúsculas
@@ -20,6 +18,24 @@ def create_fingerprint(df):
     # 7. Transforme cada palabra con un stemmer de Porter
     # 8. Ordene la lista de tokens y remueve duplicados
     # 9. Convierta la lista de tokens a una cadena de texto separada por espacios
+
+    df = df.copy()
+    df["key"] = df["text"] 
+    df["key"] = df["key"].str.strip()  
+    df["key"] = df["key"].str.lower()
+    df["key"] = df["key"].str.replace("-", "")
+    df["key"] = df["key"].str.translate(
+        str.maketrans("", "", "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~")
+    )
+    df["key"] = df["key"].str.split()
+    stemmer = mltk.PorterStemmer()
+    df["key"] = df["key"].apply(lambda x: [stemmer.stem(word) for word in x])
+    return df
+
+
+df = load_data("input.txt")
+df = create_fingerprint(df)
+print(df)
 
 
 def generate_cleaned_column(df):
@@ -49,8 +65,8 @@ def main(input_file, output_file):
     save_data(df, output_file)
 
 
-if __name__ == "__main__":
-    main(
-        input_file="input.txt",
-        output_file="output.txt",
-    )
+# if __name__ == "__main__":
+#     main(
+#         input_file="input.txt",
+#         output_file="output.txt",
+#     )
